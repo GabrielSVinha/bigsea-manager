@@ -31,9 +31,9 @@ def create_job(app_id, cmd, img, init_size, env_vars,
                scone_version="1",
                isgx="dev-isgx",
                devisgx="/dev/isgx",
-               ):
+               namespace="default"):
 
-    kube.config.load_kube_config(api.k8s_conf_path)
+    kube.config.load_incluster_config()
 
     obj_meta = kube.client.V1ObjectMeta(
         name=app_id)
@@ -88,7 +88,7 @@ def create_job(app_id, cmd, img, init_size, env_vars,
         spec=job_spec)
 
     batch_v1 = kube.client.BatchV1Api()
-    batch_v1.create_namespaced_job("default", job)
+    batch_v1.create_namespaced_job(namespace, job)
 
     return job
 
@@ -103,7 +103,7 @@ def provision_redis_or_die(app_id, namespace="default", redis_port=6379, timeout
     """
 
     # load kubernetes config
-    kube.config.load_kube_config(api.k8s_conf_path)
+    kube.config.load_incluster_config()
 
     # name redis instance as ``redis-{app_id}``
     name = "redis-%s" % app_id
@@ -208,7 +208,7 @@ def delete_redis_resources(app_id, namespace="default"):
     """Delete redis resources (Pod and Service) for a given ``app_id``"""
 
     # load kubernetes config
-    kube.config.load_kube_config(api.k8s_conf_path)
+    kube.config.load_incluster_config()
 
     CoreV1Api = kube.client.CoreV1Api()
 
@@ -221,9 +221,18 @@ def delete_redis_resources(app_id, namespace="default"):
     CoreV1Api.delete_namespaced_service(
         name=name, namespace=namespace, body=delete)
 
+def get_counter_url(self):
+        
+    kube.config.load_incluster_config()
+
+    extensions_v1beta1 = kube.client.AppsV1beta1Api()
+    deployments = extensions_v1beta1.list_deployment_for_all_namespaces()
+
+    print deployments
+
 def terminate_job(app_id, namespace="default"):
 
-    kube.config.load_kube_config(api.k8s_conf_path)
+    kube.config.load_incluster_config()
 
     batch_v1 = kube.client.BatchV1Api()
     

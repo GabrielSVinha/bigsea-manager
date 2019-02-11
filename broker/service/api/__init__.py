@@ -19,7 +19,7 @@ import ConfigParser
 try:
     # Conf reading
     config = ConfigParser.RawConfigParser()
-    config.read('./broker.cfg')
+    config.read('./conf/broker.cfg')
     
     """ Services configuration """
     monitor_url = config.get('services', 'monitor_url')
@@ -32,16 +32,6 @@ try:
     host = config.get("general", "host")
     port = config.getint('general', 'port')
     plugins = config.get('general', 'plugins').split(',')
-
-    """ Validate if really exists a section to listed plugins """
-    for plugin in plugins:
-        if plugin != '' and plugin not in config.sections():
-            raise Exception("plugin '%s' section missing" % plugin)
-    
-    if 'kubejobs' in plugins:
-        k8s_conf_path = config.get('kubejobs', 'k8s_conf_path')
-        count_queue = config.get('kubejobs', 'count_queue')
-        redis_ip = config.get('kubejobs', 'redis_ip')
 
         
     if 'openstack_generic' in plugins:

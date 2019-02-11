@@ -56,8 +56,8 @@ class KubeJobsExecutor(GenericApplicationExecutor):
             # Provision a redis database for the job. Die in case of error.
             # TODO(clenimar): configure ``timeout`` via a request param,
             # e.g. api.redis_creation_timeout.
-            redis_ip, redis_port = self.k8s.provision_redis_or_die(self.app_id)
             #agent_port = k8s.create_cpu_agent(self.app_id)
+            redis_ip, redis_port = self.k8s.provision_redis_or_die(self.app_id, namespace=data['namespace'])
 
             # inject REDIS_HOST in the environment
             data['env_vars']['REDIS_HOST'] = 'redis-%s' % self.app_id
@@ -110,17 +110,19 @@ class KubeJobsExecutor(GenericApplicationExecutor):
             for job in jobs:
                 self.rds.rpush("job", job)
 
+            job_counter_addr = k8s.get_counter_url(namespace=data['namespace'])
+
             print "Creating Job"
 
             self.k8s.create_job(self.app_id,
                            data['cmd'], data['img'],
-                           data['init_size'], data['env_vars'], config_id=data["config_id"])
+                           data['init_size'], data['env_vars'], config_id=data["config_id"], namespace=data['namespace'])
 
             starting_time = datetime.datetime.now().\
                 strftime('%Y-%m-%dT%H:%M:%S.%fGMT')
-            
+
             # Starting monitor
-            data['monitor_info'].update({'count_jobs_url': api.count_queue,
+            data['monitor_info'].update({'count_jobs_url': job_counter_addr,
                                          'number_of_jobs': queue_size,
                                          'submission_time': starting_time,
                                          'redis_ip': redis_ip,

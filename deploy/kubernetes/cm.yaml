@@ -1,0 +1,16 @@
+apiVersion: v1
+data:
+  broker.cfg: "[general]\nhost = 0.0.0.0\nport = 1500\nplugins = kubejobs\n\n[services]\ncontroller_url
+    = http://0.0.0.0:5000\nmonitor_url = http://0.0.0.0:5001\noptimizer_url = http://0.0.0.0:5002\nauthorization_url
+    = http://0.0.0.0:5003\n\n[openstack_generic]\nuser = asperathos\npassword = asperathos\nauth_ip
+    = https://my.openstack.cloud\nproject_id = 29380d210d98bdsc9m29jm231r901hn23\nuser_domain_name
+    = asperathos\npublic_key = asperathos_key\nkey_path = /home/asperathos/.ssh/asperathos_key\nlog_path
+    = /var/log/asperathos/broker \n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2019-01-31T11:26:29Z"
+  name: broker-cfg-cm
+  namespace: default
+  resourceVersion: "1142217"
+  selfLink: /api/v1/namespaces/default/configmaps/broker-cfg-cm
+  uid: 0dcb3b46-254b-11e9-a626-fa163e311ae1
