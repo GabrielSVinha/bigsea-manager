@@ -57,6 +57,20 @@ try:
             if(config.has_option('kubejobs', 'redis_ip')):
                 redis_ip = config.get('kubejobs', 'redis_ip')
 
+    if 'kubernetes_stream' in plugins:
+        # Setting default values for the necessary variables
+        k8s_conf_path = CONFIG_PATH
+
+        # If explicitly stated in the cfg file, overwrite the variables
+        if(config.has_section('kubernetes_stream')):
+
+            if(config.has_option('kubernetes_stream', 'k8s_conf_path')):
+                k8s_conf_path = config.get('kubernetes_stream', 'k8s_conf_path')
+            if(config.has_option('kubernetes_stream', 'count_queue')):
+                count_queue = config.get('kubernetes_stream', 'count_queue')
+            if(config.has_option('kubernetes_stream', 'redis_ip')):
+                redis_ip = config.get('kubernetes_stream', 'redis_ip')
+
     if 'openstack_generic' in plugins:
         public_key = config.get('openstack_generic', 'public_key')
         key_path = config.get('openstack_generic', 'key_path')

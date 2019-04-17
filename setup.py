@@ -48,7 +48,8 @@ setup(
             'plugin:OpenStackGenericProvider',
             'chronos=broker.plugins.chronos.plugin:ChronosGenericProvider',
             'spark_mesos=broker.plugins.spark_mesos.plugin:SparkMesosProvider',
-            'kubejobs=broker.plugins.kubejobs.plugin:KubeJobsProvider'
+            'kubejobs=broker.plugins.kubejobs.plugin:KubeJobsProvider',
+            'kubernetes_stream=broker.plugins.kubernetes_stream.plugin:KubernetesStreamProvider'
         ],
     },
 )

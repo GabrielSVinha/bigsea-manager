@@ -22,7 +22,62 @@ from influxdb import InfluxDBClient
 from broker.utils.logger import Log
 
 KUBEJOBS_LOG = Log("KubeJobsPlugin", "logs/kubejobs.log")
+KUBERNETESSTREAM_LOG = Log("KubernetesStreamPlugin", "logs/kubernetes_stream.log")
 
+def create_deployment(app_id, cmd, img, init_size, env_vars,
+               config_id="",
+               cas_addr="",
+               scone_heap="200M",
+               las_addr="172.17.0.1:18766",
+               scone_hw="hw",
+               scone_queues="4",
+               scone_version="1",
+               isgx="dev-isgx",
+               devisgx="/dev/isgx",
+               ):
+    kube.config.load_kube_config(api.k8s_conf_path)
+
+    obj_meta = kube.client.V1ObjectMeta(
+        labels={"app": app_id},
+        name=app_id)
+    
+    envs = []
+    for key in env_vars.keys():
+        var = kube.client.V1EnvVar(
+                name=key,
+                value=env_vars[key])
+        envs.append(var)
+    
+    container_spec = kube.client.V1Container(
+        command=cmd,
+        env=envs,
+        image=img,
+        image_pull_policy="Always",
+        name=app_id,
+        tty=True)
+    pod_spec = kube.client.V1PodSpec(
+        containers=[container_spec],
+        restart_policy="Always")
+    pod = kube.client.V1PodTemplateSpec(
+        metadata=obj_meta,
+        spec=pod_spec)
+    label_selector = kube.client.V1LabelSelector(
+        match_labels={"app": app_id})
+    deploy_spec = kube.client.V1DeploymentSpec(
+        selector=label_selector,
+        replicas=init_size,
+        template=pod
+    )
+    deploy = kube.client.V1Deployment(
+        api_version="extensions/v1beta1",
+        kind="Deployment",
+        metadata=obj_meta,
+        spec=deploy_spec)
+    extensions_v1beta1 = kube.client.ExtensionsV1beta1Api()
+    extensions_v1beta1.create_namespaced_deployment(
+        body=deploy,
+        namespace="default")
+    
 
 def create_job(app_id, cmd, img, init_size, env_vars,
                config_id="",
